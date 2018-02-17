@@ -1,4 +1,6 @@
-::RBNACL_LIBSODIUM_GEM_LIB_PATH = 'C:/Ruby23-x64/libsodium/libsodium.dll'
+# if windows {
+::RBNACL_LIBSODIUM_GEM_LIB_PATH = 'C:/Ruby23-x64/libsodium/libsodium.dll' # 音声のライブラリパス
+# }
 
 require "./API/Youtube"
 require "./API/Niconico"
@@ -8,6 +10,8 @@ require "yaml"
 require "restclient"
 require "nokogiri"
 require "kconv"
+require "rubygems"
+require "bundler/setup"
 
 BOTSTATS = File.open("config/bot.yml") { |file| YAML.load(file) }
 
@@ -48,8 +52,7 @@ bot.command(:ncsearch) do |event|
   event << HelperAPI.decode_escape(NOT_IMPL)
 end
 
-bot.command(:shindan, min_args: 2) do |event, id, *name|
-  #begin
+bot.command(:shindan, min_args: 2) do |event, id, *name| # 診断メーカー
     domain = "http://shindanmaker.com/#{id}"
     begin
       resp = HelperAPI::get_response(domain, name.join(" "))
@@ -64,15 +67,23 @@ bot.command(:shindan, min_args: 2) do |event, id, *name|
       return
     end
     event << "#{resp}"
-  #rescue => e
-  #  puts e
-  #  p resp
-  #  event << HelperAPI.decode_escape("診断できませんでした。もう一度お試しください。")
-  #end
 end
+  
+bot.command(:meshiyosoi, min_args: 1) do |event, *name| # 飯よそい
+    domain = "http://shindanmaker.com/80808"
+    begin
+      resp = HelperAPI::get_response(domain, name.join(" "))
+    rescue => e
+      event << "```\n#{$!}\n```"
+      return
+    end
 
-bot.command(:markup) do |event, q|
-  event << "```html\n#{q}\n```"
+    if resp.nil? then
+      event << "```\n#{$@}\n```"
+      event << HelperAPI.decode_escape("診断できませんでした。もう一度お試しください。")
+      return
+    end
+    event << "#{resp}"
 end
 
 bot.command(:http) do |event, domain|
