@@ -1,15 +1,19 @@
-::RBNACL_LIBSODIUM_GEM_LIB_PATH = 'C:/Ruby23-x64/libsodium/libsodium.dll'
+require "yaml"
+BOTSTATS = File.open("config/bot.yml") { |file| YAML.load(file) }
+
+::RBNACL_LIBSODIUM_GEM_LIB_PATH = File.expand_path(BOTSTATS['winlib'])
+if ::RBNACL_LIBSODIUM_GEM_LIB_PATH == nil then
+  puts "[Sabamiso/WARN]指定された場所(#{BOTSTATS['winlib']})にlibsodium.dllが存在しません。"
+end
 
 require "./API/Youtube"
 require "./API/Niconico"
 require "./API/HelperAPI"
 require "discordrb"
-require "yaml"
 require "restclient"
 require "nokogiri"
 require "kconv"
 
-BOTSTATS = File.open("config/bot.yml") { |file| YAML.load(file) }
 
 def get_token()
   BOTSTATS["token"]
